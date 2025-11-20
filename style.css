@@ -114,23 +114,80 @@ header h1 {
     margin-bottom: 12px;
     background: #f8f9fa;
     border-radius: 12px;
-    transition: all 0.3s;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     gap: 12px;
+    animation: slideIn 0.3s ease-out;
 }
 
 .checklist-item:hover {
     background: #f0f1f3;
+    transform: translateX(2px);
 }
 
 /* Checked state - reduced opacity and strikethrough */
 .checklist-item.checked {
     opacity: 0.5;
     background: #e8f5e9;
+    animation: checkAnimation 0.5s ease-out;
 }
 
 .checklist-item.checked .item-text {
     text-decoration: line-through;
     color: #888;
+    transition: all 0.3s ease;
+}
+
+/* Slide-in animation for new items */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Check animation - smooth bounce effect */
+@keyframes checkAnimation {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    15% {
+        transform: scale(0.97);
+    }
+    30% {
+        transform: scale(1.03);
+        opacity: 0.7;
+    }
+    50% {
+        transform: scale(0.98);
+    }
+    70% {
+        transform: scale(1.01);
+        opacity: 0.55;
+    }
+    85% {
+        transform: scale(0.99);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+}
+
+/* Smooth fade effect for moving items */
+@keyframes fadeSlide {
+    0% {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 /* Custom Checkbox */
@@ -149,24 +206,51 @@ header h1 {
     border-radius: 6px;
     cursor: pointer;
     position: relative;
-    transition: all 0.3s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     background: white;
+}
+
+.checkbox-wrapper input[type="checkbox"]:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
 .checkbox-wrapper input[type="checkbox"]:checked {
     background: #667eea;
+    border-color: #667eea;
+    animation: checkboxPop 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Checkmark */
-.checkbox-wrapper input[type="checkbox"]:checked::after {
+/* Checkmark with animation */
+.checkbox-wrapper input[type="checkbox"]::after {
     content: '✓';
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%) scale(0);
     color: white;
     font-size: 16px;
     font-weight: bold;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+}
+
+.checkbox-wrapper input[type="checkbox"]:checked::after {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+}
+
+/* Checkbox pop animation */
+@keyframes checkboxPop {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 /* Item Text */
@@ -175,6 +259,31 @@ header h1 {
     font-size: 1rem;
     color: #333;
     word-break: break-word;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+/* Animated strikethrough effect */
+.checklist-item.checked .item-text::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 2px;
+    background: #888;
+    transform: scaleX(0);
+    transform-origin: left;
+    animation: strikethrough 0.4s ease-out forwards;
+}
+
+@keyframes strikethrough {
+    0% {
+        transform: scaleX(0);
+    }
+    100% {
+        transform: scaleX(1);
+    }
 }
 
 /* Delete Button */

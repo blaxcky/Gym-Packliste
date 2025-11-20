@@ -259,13 +259,20 @@ function handleAddItem() {
 
 /**
  * Handle toggling an item's checked state
+ * Includes smooth animation before re-rendering
  * @param {number} index - Index of item to toggle
  */
 function handleToggleItem(index) {
     if (index >= 0 && index < items.length) {
+        // Toggle the state
         items[index].checked = !items[index].checked;
         saveItems();
-        renderChecklist();
+
+        // Add a tiny delay to let the checkbox animation complete
+        // before repositioning items (creates smoother visual effect)
+        setTimeout(() => {
+            renderChecklist();
+        }, 100);
     }
 }
 
