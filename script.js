@@ -210,6 +210,29 @@ function createChecklistItemElement(item, index) {
     textSpan.className = 'item-text';
     textSpan.textContent = item.text;
 
+    // Create reorder buttons container
+    const reorderContainer = document.createElement('div');
+    reorderContainer.className = 'reorder-buttons';
+
+    // Move up button
+    const moveUpBtn = document.createElement('button');
+    moveUpBtn.className = 'btn-reorder';
+    moveUpBtn.innerHTML = '↑';
+    moveUpBtn.setAttribute('aria-label', 'Move up');
+    moveUpBtn.addEventListener('click', () => handleMoveItem(index, -1));
+    if (index === 0) moveUpBtn.disabled = true;
+
+    // Move down button
+    const moveDownBtn = document.createElement('button');
+    moveDownBtn.className = 'btn-reorder';
+    moveDownBtn.innerHTML = '↓';
+    moveDownBtn.setAttribute('aria-label', 'Move down');
+    moveDownBtn.addEventListener('click', () => handleMoveItem(index, 1));
+    if (index === items.length - 1) moveDownBtn.disabled = true;
+
+    reorderContainer.appendChild(moveUpBtn);
+    reorderContainer.appendChild(moveDownBtn);
+
     // Create delete button
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'btn-delete';
@@ -220,6 +243,7 @@ function createChecklistItemElement(item, index) {
     // Assemble the item
     itemDiv.appendChild(checkboxWrapper);
     itemDiv.appendChild(textSpan);
+    itemDiv.appendChild(reorderContainer);
     itemDiv.appendChild(deleteBtn);
 
     return itemDiv;
@@ -278,6 +302,29 @@ function handleToggleItem(index) {
         saveItems();
         renderChecklist();
     }
+}
+
+/**
+ * Handle moving an item up or down
+ * @param {number} index - Index of item to move
+ * @param {number} direction - Direction to move: -1 for up, 1 for down
+ */
+function handleMoveItem(index, direction) {
+    const newIndex = index + direction;
+
+    // Validate bounds
+    if (newIndex < 0 || newIndex >= items.length) {
+        return;
+    }
+
+    // Swap items
+    const temp = items[index];
+    items[index] = items[newIndex];
+    items[newIndex] = temp;
+
+    // Save and re-render
+    saveItems();
+    renderChecklist();
 }
 
 /**

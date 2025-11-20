@@ -208,6 +208,43 @@ header h1 {
 }
 
 
+/* Reorder Buttons */
+.reorder-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+.btn-reorder {
+    padding: 2px 6px;
+    font-size: 0.75rem;
+    line-height: 1;
+    background: #e8e9ec;
+    color: #888;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 24px;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-reorder:active:not(:disabled) {
+    background: #667eea;
+    color: white;
+    transform: scale(0.95);
+}
+
+.btn-reorder:disabled {
+    opacity: 0.25;
+    cursor: not-allowed;
+    background: #f5f5f5;
+}
+
 /* Delete Button */
 .btn-delete {
     padding: 6px 10px;
