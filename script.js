@@ -134,6 +134,7 @@ function saveItems() {
 /**
  * Render the entire checklist
  * Clears and rebuilds the checklist HTML
+ * Unchecked items are shown first, checked items move to bottom
  */
 function renderChecklist() {
     // Clear existing content
@@ -150,8 +151,22 @@ function renderChecklist() {
         return;
     }
 
-    // Render each item
-    items.forEach((item, index) => {
+    // Sort items: unchecked first, then checked
+    // Create array of items with their original indices
+    const itemsWithIndices = items.map((item, index) => ({ item, index }));
+
+    // Sort: unchecked (false) comes before checked (true)
+    const sortedItems = itemsWithIndices.sort((a, b) => {
+        // If checked status is different, sort by checked (false < true)
+        if (a.item.checked !== b.item.checked) {
+            return a.item.checked ? 1 : -1;
+        }
+        // If same checked status, maintain original order
+        return a.index - b.index;
+    });
+
+    // Render each item with its original index (for event handlers)
+    sortedItems.forEach(({ item, index }) => {
         const itemElement = createChecklistItemElement(item, index);
         checklistContainer.appendChild(itemElement);
     });
