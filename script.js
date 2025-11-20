@@ -47,6 +47,13 @@ const exportBtn = document.getElementById('exportBtn');
 const importBtn = document.getElementById('importBtn');
 const importFileInput = document.getElementById('importFileInput');
 
+// Modal elements
+const modalOverlay = document.getElementById('customModal');
+const modalTitle = document.getElementById('modalTitle');
+const modalMessage = document.getElementById('modalMessage');
+const modalCancel = document.getElementById('modalCancel');
+const modalConfirm = document.getElementById('modalConfirm');
+
 // ============================================
 // INITIALIZATION
 // ============================================
@@ -118,12 +125,16 @@ function loadItems() {
 /**
  * Save current items array to localStorage
  */
-function saveItems() {
+async function saveItems() {
     try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
     } catch (error) {
         console.error('Error saving items to localStorage:', error);
-        alert('Could not save data. Your browser may have storage disabled.');
+        await showAlert(
+            'Could not save data. Your browser may have storage disabled.',
+            'Storage Error',
+            'danger'
+        );
     }
 }
 
@@ -221,12 +232,12 @@ function createChecklistItemElement(item, index) {
 /**
  * Handle adding a new item
  */
-function handleAddItem() {
+async function handleAddItem() {
     const text = newItemInput.value.trim();
 
     // Validate input
     if (text === '') {
-        alert('Please enter an item name');
+        await showAlert('Please enter an item name', 'Error', 'danger');
         return;
     }
 
@@ -236,7 +247,7 @@ function handleAddItem() {
     );
 
     if (duplicate) {
-        alert('This item already exists in your checklist');
+        await showAlert('This item already exists in your checklist', 'Duplicate Item', 'danger');
         return;
     }
 
@@ -273,11 +284,13 @@ function handleToggleItem(index) {
  * Handle deleting an item
  * @param {number} index - Index of item to delete
  */
-function handleDeleteItem(index) {
+async function handleDeleteItem(index) {
     if (index >= 0 && index < items.length) {
-        // Optional: Confirm deletion for better UX
         const itemText = items[index].text;
-        const confirmed = confirm(`Delete "${itemText}"?`);
+        const confirmed = await showConfirm(
+            `Delete "${itemText}"?`,
+            'Delete Item'
+        );
 
         if (confirmed) {
             items.splice(index, 1);
@@ -291,9 +304,9 @@ function handleDeleteItem(index) {
  * Handle resetting the checklist
  * Unchecks all items but keeps them in the list
  */
-function handleReset() {
+async function handleReset() {
     if (items.length === 0) {
-        alert('Your checklist is already empty');
+        await showAlert('Your checklist is already empty', 'Notice');
         return;
     }
 
@@ -301,12 +314,15 @@ function handleReset() {
     const hasCheckedItems = items.some(item => item.checked);
 
     if (!hasCheckedItems) {
-        alert('All items are already unchecked');
+        await showAlert('All items are already unchecked', 'Notice');
         return;
     }
 
     // Confirm reset
-    const confirmed = confirm('Reset checklist? This will uncheck all items.');
+    const confirmed = await showConfirm(
+        'This will uncheck all items. Continue?',
+        'Reset Checklist'
+    );
 
     if (confirmed) {
         // Uncheck all items
@@ -327,9 +343,9 @@ function handleReset() {
  * Handle export - download checklist as JSON file
  * Creates a backup file with timestamp in filename
  */
-function handleExport() {
+async function handleExport() {
     if (items.length === 0) {
-        alert('Your checklist is empty. Nothing to export.');
+        await showAlert('Your checklist is empty. Nothing to export.', 'Notice');
         return;
     }
 
@@ -357,10 +373,10 @@ function handleExport() {
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
 
-        alert('✅ Backup exported successfully!');
+        await showAlert('Backup exported successfully!', 'Success', 'success');
     } catch (error) {
         console.error('Export failed:', error);
-        alert('❌ Export failed. Please try again.');
+        await showAlert('Export failed. Please try again.', 'Error', 'danger');
     }
 }
 
@@ -368,7 +384,7 @@ function handleExport() {
  * Handle import file selection
  * Reads selected JSON file and imports data
  */
-function handleImportFile(event) {
+async function handleImportFile(event) {
     const file = event.target.files[0];
 
     if (!file) {
@@ -377,15 +393,15 @@ function handleImportFile(event) {
 
     // Validate file type
     if (!file.name.endsWith('.json')) {
-        alert('❌ Please select a valid JSON file.');
-        importFileInput.value = ''; // Reset file input
+        await showAlert('Please select a valid JSON file.', 'Invalid File', 'danger');
+        importFileInput.value = '';
         return;
     }
 
     // Read file
     const reader = new FileReader();
 
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
         try {
             const jsonString = e.target.result;
             const imported = JSON.parse(jsonString);
@@ -408,30 +424,125 @@ function handleImportFile(event) {
             }
 
             // Confirm before overwriting
-            const confirmed = confirm(
-                `Import ${imported.length} items?\n\n⚠️ This will replace your current checklist!`
+            const confirmed = await showConfirm(
+                `Import ${imported.length} items?\n\nThis will replace your current checklist!`,
+                'Import Backup'
             );
 
             if (confirmed) {
                 items = imported;
                 saveItems();
                 renderChecklist();
-                alert('✅ Import successful!');
+                await showAlert('Import successful!', 'Success', 'success');
             }
         } catch (error) {
             console.error('Import failed:', error);
-            alert('❌ Import failed. Please check your file format.\n\nError: ' + error.message);
+            await showAlert(
+                `Import failed. Please check your file format.\n\nError: ${error.message}`,
+                'Import Error',
+                'danger'
+            );
         } finally {
             // Reset file input so same file can be selected again
             importFileInput.value = '';
         }
     };
 
-    reader.onerror = () => {
-        alert('❌ Error reading file. Please try again.');
+    reader.onerror = async () => {
+        await showAlert('Error reading file. Please try again.', 'Error', 'danger');
         importFileInput.value = '';
     };
 
     // Start reading the file
     reader.readAsText(file);
+}
+
+// ============================================
+// CUSTOM MODAL SYSTEM
+// ============================================
+
+/**
+ * Show custom modal with title, message, and actions
+ * @param {string} title - Modal title
+ * @param {string} message - Modal message
+ * @param {string} confirmText - Text for confirm button
+ * @param {string} confirmType - Button type: 'default', 'danger', 'success'
+ * @param {boolean} showCancel - Whether to show cancel button
+ * @returns {Promise<boolean>} - Resolves to true if confirmed, false if cancelled
+ */
+function showModal(title, message, confirmText = 'OK', confirmType = 'default', showCancel = true) {
+    return new Promise((resolve) => {
+        // Set content
+        modalTitle.textContent = title;
+        modalMessage.textContent = message;
+        modalConfirm.textContent = confirmText;
+
+        // Set button style
+        modalConfirm.className = 'btn-modal btn-confirm';
+        if (confirmType === 'danger') {
+            modalConfirm.classList.add('danger');
+        } else if (confirmType === 'success') {
+            modalConfirm.classList.add('success');
+        }
+
+        // Show/hide cancel button
+        modalCancel.style.display = showCancel ? 'block' : 'none';
+
+        // Show modal
+        modalOverlay.classList.add('active');
+
+        // Handle confirm
+        const handleConfirm = () => {
+            modalOverlay.classList.remove('active');
+            cleanup();
+            resolve(true);
+        };
+
+        // Handle cancel
+        const handleCancel = () => {
+            modalOverlay.classList.remove('active');
+            cleanup();
+            resolve(false);
+        };
+
+        // Handle backdrop click
+        const handleBackdrop = (e) => {
+            if (e.target === modalOverlay) {
+                handleCancel();
+            }
+        };
+
+        // Cleanup function
+        const cleanup = () => {
+            modalConfirm.removeEventListener('click', handleConfirm);
+            modalCancel.removeEventListener('click', handleCancel);
+            modalOverlay.removeEventListener('click', handleBackdrop);
+        };
+
+        // Attach event listeners
+        modalConfirm.addEventListener('click', handleConfirm);
+        modalCancel.addEventListener('click', handleCancel);
+        modalOverlay.addEventListener('click', handleBackdrop);
+    });
+}
+
+/**
+ * Show confirmation dialog
+ * @param {string} message - Confirmation message
+ * @param {string} title - Dialog title (default: 'Confirm')
+ * @returns {Promise<boolean>} - True if confirmed
+ */
+async function showConfirm(message, title = 'Confirm') {
+    return await showModal(title, message, 'Confirm', 'default', true);
+}
+
+/**
+ * Show alert dialog
+ * @param {string} message - Alert message
+ * @param {string} title - Dialog title (default: 'Notice')
+ * @param {string} type - Alert type: 'default', 'danger', 'success'
+ * @returns {Promise<boolean>} - Always true
+ */
+async function showAlert(message, title = 'Notice', type = 'default') {
+    return await showModal(title, message, 'OK', type, false);
 }
