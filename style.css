@@ -1,0 +1,288 @@
+/* ============================================
+   RESET & BASE STYLES
+   ============================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+}
+
+/* ============================================
+   CONTAINER
+   ============================================ */
+
+.container {
+    max-width: 500px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 30px 20px;
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    font-size: 2rem;
+    color: #667eea;
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    font-size: 0.95rem;
+    color: #666;
+}
+
+/* ============================================
+   ADD ITEM SECTION
+   ============================================ */
+
+.add-item-section {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+#newItemInput {
+    flex: 1;
+    padding: 15px;
+    font-size: 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+#newItemInput:focus {
+    border-color: #667eea;
+}
+
+.btn-add {
+    padding: 15px 25px;
+    font-size: 1rem;
+    font-weight: 600;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.1s;
+    white-space: nowrap;
+}
+
+.btn-add:hover {
+    background: #5568d3;
+}
+
+.btn-add:active {
+    transform: scale(0.98);
+}
+
+/* ============================================
+   CHECKLIST
+   ============================================ */
+
+.checklist {
+    flex: 1;
+    margin-bottom: 25px;
+}
+
+.checklist-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    margin-bottom: 12px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    transition: all 0.3s;
+    gap: 12px;
+}
+
+.checklist-item:hover {
+    background: #f0f1f3;
+}
+
+/* Checked state - reduced opacity and strikethrough */
+.checklist-item.checked {
+    opacity: 0.5;
+    background: #e8f5e9;
+}
+
+.checklist-item.checked .item-text {
+    text-decoration: line-through;
+    color: #888;
+}
+
+/* Custom Checkbox */
+.checkbox-wrapper {
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.checkbox-wrapper input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 26px;
+    height: 26px;
+    border: 2px solid #667eea;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s;
+    background: white;
+}
+
+.checkbox-wrapper input[type="checkbox"]:checked {
+    background: #667eea;
+}
+
+/* Checkmark */
+.checkbox-wrapper input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* Item Text */
+.item-text {
+    flex: 1;
+    font-size: 1rem;
+    color: #333;
+    word-break: break-word;
+}
+
+/* Delete Button */
+.btn-delete {
+    padding: 8px 12px;
+    font-size: 1.1rem;
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.1s;
+    flex-shrink: 0;
+}
+
+.btn-delete:hover {
+    background: #ff5252;
+}
+
+.btn-delete:active {
+    transform: scale(0.95);
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #999;
+}
+
+.empty-state p {
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+
+/* ============================================
+   RESET SECTION
+   ============================================ */
+
+.reset-section {
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.btn-reset {
+    width: 100%;
+    padding: 16px;
+    font-size: 1rem;
+    font-weight: 600;
+    background: #764ba2;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.1s;
+}
+
+.btn-reset:hover {
+    background: #663a91;
+}
+
+.btn-reset:active {
+    transform: scale(0.98);
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+
+footer {
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #e0e0e0;
+}
+
+footer p {
+    font-size: 0.85rem;
+    color: #999;
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+
+/* For very small screens */
+@media (max-width: 360px) {
+    .container {
+        padding: 20px 15px;
+    }
+
+    header h1 {
+        font-size: 1.75rem;
+    }
+
+    .btn-add {
+        padding: 15px 20px;
+    }
+}
+
+/* For slightly larger screens */
+@media (min-width: 768px) {
+    body {
+        padding: 40px;
+    }
+
+    .container {
+        padding: 40px 30px;
+    }
+}
