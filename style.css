@@ -242,6 +242,51 @@ header h1 {
 }
 
 /* ============================================
+   BACKUP SECTION
+   ============================================ */
+
+.backup-section {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 2px dashed #e0e0e0;
+}
+
+.backup-section h3 {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.backup-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.btn-backup {
+    padding: 14px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    background: #48bb78;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.1s;
+}
+
+.btn-backup:hover {
+    background: #38a169;
+}
+
+.btn-backup:active {
+    transform: scale(0.98);
+}
+
+/* ============================================
    FOOTER
    ============================================ */
 

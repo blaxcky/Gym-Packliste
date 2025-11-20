@@ -43,6 +43,9 @@ const newItemInput = document.getElementById('newItemInput');
 const addItemBtn = document.getElementById('addItemBtn');
 const checklistContainer = document.getElementById('checklist');
 const resetBtn = document.getElementById('resetBtn');
+const exportBtn = document.getElementById('exportBtn');
+const importBtn = document.getElementById('importBtn');
+const importFileInput = document.getElementById('importFileInput');
 
 // ============================================
 // INITIALIZATION
@@ -73,6 +76,17 @@ function attachEventListeners() {
 
     // Reset checklist
     resetBtn.addEventListener('click', handleReset);
+
+    // Export backup
+    exportBtn.addEventListener('click', handleExport);
+
+    // Import backup - trigger file input
+    importBtn.addEventListener('click', () => {
+        importFileInput.click();
+    });
+
+    // Handle file selection
+    importFileInput.addEventListener('change', handleImportFile);
 }
 
 // ============================================
@@ -291,30 +305,118 @@ function handleReset() {
 }
 
 // ============================================
-// UTILITY FUNCTIONS
+// BACKUP & RESTORE FUNCTIONS
 // ============================================
 
 /**
- * Optional: Export data for backup (not used in current version)
+ * Handle export - download checklist as JSON file
+ * Creates a backup file with timestamp in filename
  */
-function exportData() {
-    return JSON.stringify(items, null, 2);
+function handleExport() {
+    if (items.length === 0) {
+        alert('Your checklist is empty. Nothing to export.');
+        return;
+    }
+
+    try {
+        // Create JSON string with nice formatting
+        const jsonString = JSON.stringify(items, null, 2);
+
+        // Create blob from JSON
+        const blob = new Blob([jsonString], { type: 'application/json' });
+
+        // Create download link
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+
+        // Generate filename with timestamp
+        const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+        link.download = `gym-packlist-backup-${timestamp}.json`;
+
+        // Trigger download
+        document.body.appendChild(link);
+        link.click();
+
+        // Cleanup
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        alert('✅ Backup exported successfully!');
+    } catch (error) {
+        console.error('Export failed:', error);
+        alert('❌ Export failed. Please try again.');
+    }
 }
 
 /**
- * Optional: Import data from backup (not used in current version)
+ * Handle import file selection
+ * Reads selected JSON file and imports data
  */
-function importData(jsonString) {
-    try {
-        const imported = JSON.parse(jsonString);
-        if (Array.isArray(imported)) {
-            items = imported;
-            saveItems();
-            renderChecklist();
-            return true;
-        }
-    } catch (error) {
-        console.error('Import failed:', error);
-        return false;
+function handleImportFile(event) {
+    const file = event.target.files[0];
+
+    if (!file) {
+        return;
     }
+
+    // Validate file type
+    if (!file.name.endsWith('.json')) {
+        alert('❌ Please select a valid JSON file.');
+        importFileInput.value = ''; // Reset file input
+        return;
+    }
+
+    // Read file
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+        try {
+            const jsonString = e.target.result;
+            const imported = JSON.parse(jsonString);
+
+            // Validate data structure
+            if (!Array.isArray(imported)) {
+                throw new Error('Invalid data format: Expected an array');
+            }
+
+            // Validate each item has required properties
+            const isValid = imported.every(item =>
+                item.hasOwnProperty('text') &&
+                item.hasOwnProperty('checked') &&
+                typeof item.text === 'string' &&
+                typeof item.checked === 'boolean'
+            );
+
+            if (!isValid) {
+                throw new Error('Invalid data format: Items missing required properties');
+            }
+
+            // Confirm before overwriting
+            const confirmed = confirm(
+                `Import ${imported.length} items?\n\n⚠️ This will replace your current checklist!`
+            );
+
+            if (confirmed) {
+                items = imported;
+                saveItems();
+                renderChecklist();
+                alert('✅ Import successful!');
+            }
+        } catch (error) {
+            console.error('Import failed:', error);
+            alert('❌ Import failed. Please check your file format.\n\nError: ' + error.message);
+        } finally {
+            // Reset file input so same file can be selected again
+            importFileInput.value = '';
+        }
+    };
+
+    reader.onerror = () => {
+        alert('❌ Error reading file. Please try again.');
+        importFileInput.value = '';
+    };
+
+    // Start reading the file
+    reader.readAsText(file);
 }
